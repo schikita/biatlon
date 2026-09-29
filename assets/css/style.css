@@ -1,0 +1,1880 @@
+/* =========================================================
+   Сила на селе — биатлон в Веремейках
+   Foundation: tokens, reset, typography, utilities
+   ========================================================= */
+
+:root {
+  /* Palette — тёплая, землистая */
+  --paper:    #F5EEE1;
+  --paper-2:  #EDE3D2;
+  --ink:      #2C231B;
+  --ink-soft: #5C5142;
+  --clay:     #B4552D;
+  --forest:   #4C5A3A;
+  --wheat:    #D2A24C;
+  --stone:    #8C8577;
+  --line:     rgba(44, 35, 27, .14);
+
+  /* Type */
+  --font-display: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-body: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-accent: 'Caveat', 'Segoe Script', cursive;
+
+  /* Layout */
+  --container: 1140px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(44, 35, 27, .06);
+  --shadow-md: 0 18px 40px -20px rgba(44, 35, 27, .35);
+  --shadow-lg: 0 40px 80px -40px rgba(44, 35, 27, .45);
+
+  /* Motion */
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --dur: .8s;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.7;
+  font-size: 1rem;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; border-radius: 4px; }
+
+/* Paper grain overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: .05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Reveal on scroll */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+[data-reveal].is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .nav__logo-mark { transition: none; }
+}
+
+/* =========================================================
+   Navbar
+   ========================================================= */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  transition: background-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.nav__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: clamp(.9rem, 2vw, 1.4rem);
+}
+.nav.is-scrolled {
+  background: rgba(245, 238, 225, .86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 var(--line), var(--shadow-sm);
+}
+
+.nav__logo { display: flex; align-items: center; gap: .6rem; line-height: 1.05; }
+.nav__logo-mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  transition: transform .45s var(--ease), filter .45s var(--ease);
+  will-change: transform;
+}
+.nav__logo-text { display: flex; flex-direction: column; }
+.nav__logo:hover .nav__logo-mark {
+  transform: scale(1.12) rotate(-8deg) translateY(-1px);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .25));
+}
+.nav__logo:active .nav__logo-mark { transform: scale(.97); }
+.nav__logo-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.nav__logo-sub {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: var(--clay);
+}
+
+/* Nav colours while it sits over the dark hero */
+.nav:not(.is-scrolled) .nav__logo-title,
+.nav:not(.is-scrolled) .nav__links a { color: var(--paper); }
+.nav:not(.is-scrolled) .nav__logo-sub { color: var(--wheat); }
+.nav:not(.is-scrolled) .nav__burger span { background: var(--paper); }
+.nav.is-open .nav__logo-title,
+.nav.is-open .nav__links a { color: var(--ink); }
+.nav.is-open .nav__logo-sub { color: var(--clay); }
+.nav.is-open .nav__burger span { background: var(--ink); }
+
+.nav__links { display: none; gap: clamp(1rem, 2vw, 1.9rem); }
+.nav__links a {
+  position: relative;
+  padding-block: .25rem;
+  font-size: .92rem;
+  color: var(--ink-soft);
+  transition: color .3s var(--ease);
+}
+.nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 2px;
+  background: var(--clay);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s var(--ease);
+}
+.nav__links a:hover,
+.nav__links a.is-active { color: var(--ink); }
+.nav__links a:hover::after,
+.nav__links a.is-active::after { transform: scaleX(1); }
+
+.nav__burger { display: inline-flex; flex-direction: column; gap: 5px; padding: .5rem; }
+.nav__burger span {
+  width: 24px; height: 2px;
+  background: var(--ink);
+  transition: transform .3s var(--ease), opacity .3s var(--ease);
+}
+.nav.is-open .nav__burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav.is-open .nav__burger span:nth-child(2) { opacity: 0; }
+.nav.is-open .nav__burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.nav__menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: 6rem var(--gutter) 2rem;
+  background: var(--paper);
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity .35s var(--ease), transform .35s var(--ease);
+}
+.nav.is-open .nav__menu { opacity: 1; transform: none; pointer-events: auto; }
+.nav__menu a { font-family: var(--font-display); font-size: 1.5rem; }
+
+@media (min-width: 900px) {
+  .nav__links { display: flex; }
+  .nav__burger { display: none; }
+  .nav__menu { display: none; }
+}
+
+/* Mobile: the bar stays solid everywhere — a see-through strip over the photos
+   reads badly, so the paper background and the dark logo/burger are permanent */
+@media (max-width: 899px) {
+  .nav,
+  .nav.is-scrolled {
+    background: var(--paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: 0 1px 0 var(--line), var(--shadow-sm);
+  }
+  .nav:not(.is-scrolled) .nav__logo-title,
+  .nav:not(.is-scrolled) .nav__links a { color: var(--ink); }
+  .nav:not(.is-scrolled) .nav__logo-sub { color: var(--clay); }
+  .nav:not(.is-scrolled) .nav__burger span { background: var(--ink); }
+}
+
+/* =========================================================
+   Scroll-expansion hero
+   (vanilla port of 21st.dev ScrollExpandMedia)
+   ========================================================= */
+.expand {
+  position: relative;
+  overflow-x: hidden;
+  overflow-x: clip;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Full-bleed background that fades out while the media expands */
+.expand__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  height: 100vh;
+  height: 100svh;
+  pointer-events: none;
+  will-change: opacity;
+}
+.expand__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.expand__bg-tint {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(44, 35, 27, .10), rgba(44, 35, 27, .60)),
+    linear-gradient(180deg, rgba(44, 35, 27, .35), rgba(44, 35, 27, .82));
+}
+
+.expand__stack { position: relative; z-index: 1; }
+
+/* Pinned viewport where the expansion happens */
+.expand__viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* Expanding media (width/height driven by JS) */
+.expand__media {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 860px;
+  height: 600px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .7);
+  will-change: width, height;
+}
+.expand__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: linear-gradient(160deg, rgba(210, 162, 76, .55), rgba(76, 90, 58, .75));
+}
+.expand__veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(44, 35, 27, .7);
+  pointer-events: none;
+}
+
+/* Split title that slides apart */
+.expand__title {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.4rem, 2vw, 1.4rem);
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.expand__word {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--paper);
+  text-shadow: 0 2px 30px rgba(0, 0, 0, .55);
+  will-change: transform;
+}
+.expand__word--l { transform: translateX(calc(var(--tx, 0vw) * -1)); }
+.expand__word--r { transform: translateX(var(--tx, 0vw)); }
+
+/* Date + hint slide apart too */
+.expand__date,
+.expand__hint {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  margin: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform;
+}
+.expand__date {
+  top: calc(50% - var(--media-h, 600px) / 2 - 40px);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--wheat);
+  transform: translateX(calc(-50% - var(--tx, 0vw)));
+}
+.expand__hint {
+  top: calc(50% + var(--media-h, 600px) / 2 + 40px);
+  font-family: var(--font-accent);
+  font-size: 1.3rem;
+  color: var(--paper);
+  opacity: .92;
+  transform: translateX(calc(-50% + var(--tx, 0vw)));
+}
+
+/* Revealed content — full-width block over a darkened photo */
+.expand__content {
+  position: relative;
+  z-index: 1;
+  padding: clamp(3rem, 8vw, 6.5rem) 0;
+  color: var(--paper);
+  border-top: 1px solid rgba(245, 238, 225, .12);
+  background-image:
+    linear-gradient(180deg, rgba(44, 35, 27, .82), rgba(44, 35, 27, .93)),
+    url("../img/shlems.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.expand__content.is-shown { opacity: 1; transform: none; }
+.expand__content-inner {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+.expand__lead {
+  margin-bottom: 1.25rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+  line-height: 1.35;
+  color: var(--wheat);
+}
+.expand__text {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.1vw, 1.08rem);
+  color: rgba(245, 238, 225, .82);
+}
+.expand__credit {
+  margin-top: 1.5rem;
+  font-family: var(--font-accent);
+  font-size: 1.15rem;
+  color: rgba(245, 238, 225, .55);
+}
+.expand .star {
+  font-weight: 600;
+  color: var(--wheat);  
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+/* =========================================================
+   Article — Характер сильнее бюджета
+   ========================================================= */
+.article {
+  position: relative;
+  padding: clamp(3.5rem, 9vw, 7rem) 0 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+/* Lazy background video (#harakter) */
+.article__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.article__video-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--paper-2);
+}
+/* Light paper veil: keeps the dark body text readable above the footage */
+.article__video-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(245, 238, 225, .94) 0%,
+    rgba(245, 238, 225, .80) 30%,
+    rgba(245, 238, 225, .84) 72%,
+    rgba(245, 238, 225, .96) 100%);
+}
+/* Section content sits above the video layer */
+.article > .container,
+.article > .marquee { position: relative; z-index: 1; }
+
+.article__head { margin-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+.article__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .9rem;
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--clay);
+}
+.article__eyebrow::before { content: ""; width: 32px; height: 2px; background: var(--clay); }
+.article__title {
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+}
+.article__body { max-width: none; }
+.article__body > p {
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.article__body > p + p { margin-top: 1.25rem; }
+.article .star {
+  font-weight: 600;
+  color: var(--clay);  
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+/* Pull quote */
+.quote {
+  margin: clamp(2rem, 5vw, 3rem) 0 0;
+  padding-left: clamp(1.25rem, 3vw, 2rem);
+  border-left: 3px solid var(--clay);
+}
+.quote p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--ink);
+}
+.quote cite {
+  display: block;
+  margin-top: 1rem;
+  font-style: normal;
+  font-size: .9rem;
+  color: var(--stone);
+}
+
+/* =========================================================
+   Photo marquee (vanilla port of hero-3 AnimatedMarqueeHero)
+   ========================================================= */
+.marquee {
+  position: relative;
+  margin-top: clamp(3rem, 7vw, 5rem);
+  padding-block: clamp(2rem, 5vw, 3rem);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 40s linear infinite;
+  will-change: transform;
+}
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--marquee-shift, 50%))); }
+}
+.marquee__item {
+  flex: 0 0 auto;
+  width: clamp(180px, 22vw, 280px);
+  aspect-ratio: 3 / 4;
+  margin-right: 1rem;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  background: var(--paper-2);
+}
+.marquee__item img { width: 100%; height: 100%; object-fit: cover; }
+.marquee__item:nth-child(odd) { transform: rotate(-2deg); }
+.marquee__item:nth-child(even) { transform: rotate(5deg); }
+.marquee:hover .marquee__track { animation-play-state: paused; }
+
+/* Two-row gallery variant (#legenda): square tiles, rows run in opposite directions */
+.marquee--row { margin-top: 0; padding-block: 0; }
+.marquee--row + .marquee--row { margin-top: clamp(.75rem, 1.6vw, 1.25rem); }
+.marquee--row .marquee__item {
+  width: clamp(150px, 14vw, 200px);
+  aspect-ratio: 1 / 1;
+  margin-right: clamp(.75rem, 1.4vw, 1.25rem);
+  transform: none;
+}
+.marquee--reverse .marquee__track { animation-direction: reverse; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* The strip turns into a horizontally scrollable list, so the edge fade goes away */
+  .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee__track { animation: none; }
+}
+
+/* =========================================================
+   Section — База в Веремейках
+   Photos on the sides, text in the middle, photo background
+   ========================================================= */
+.baza {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(3.5rem, 9vw, 7rem) 0;
+  background: var(--paper-2);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* Full-bleed photo behind the section */
+.baza__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.baza__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  background: var(--paper-2);
+}
+/* Warm paper veil: keeps the dark body text readable above the photo */
+.baza__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(245, 238, 225, .90) 0%,
+      rgba(245, 238, 225, .74) 34%,
+      rgba(245, 238, 225, .78) 70%,
+      rgba(245, 238, 225, .92) 100%),
+    radial-gradient(85% 65% at 50% 42%, rgba(245, 238, 225, .34), rgba(245, 238, 225, 0) 80%);
+}
+.baza > .container { position: relative; z-index: 1; }
+
+.baza__head {
+  max-width: 60ch;
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+.baza__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .9rem;
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--clay);
+}
+.baza__eyebrow::before { content: ""; width: 32px; height: 2px; background: var(--clay); }
+.baza__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -.02em;
+}
+
+/* Collage grid: photos left / text / photos right */
+.baza__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: start;
+}
+.baza__side { display: contents; }
+.baza__text { grid-column: 1 / -1; order: -1; }
+.baza__text > p {
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: rgba(44, 35, 27, .9);
+}
+.baza__text > p + p { margin-top: 1.25rem; }
+
+/* Pull-quote: a bit lower and full width of the grid */
+.baza__quote {
+  grid-column: 1 / -1;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+.baza__quote p { font-size: clamp(1.1rem, 2.2vw, 1.6rem); }
+
+/* Photos: paper frames with a slight rotation; fade-in via [data-reveal] */
+.baza__photo {
+  --rot: -2.5deg;
+  margin: 0;
+  padding: .55rem .55rem .9rem;
+  background: var(--paper);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+  transform: translateY(24px) rotate(var(--rot));
+}
+.baza__photo--r { --rot: 2.5deg; }
+.baza__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  background: var(--paper-2);
+}
+[data-reveal].baza__photo.is-visible { transform: rotate(var(--rot)); }
+
+@media (min-width: 1080px) {
+  .baza__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
+  .baza__text { grid-column: auto; order: 0; }
+  .baza__side {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 2.5vw, 2.25rem);
+  }
+  .baza__side--r { padding-top: clamp(2rem, 5vw, 4rem); }
+}
+
+@media (max-width: 479px) {
+  .baza__grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .baza__photo { transform: rotate(var(--rot)); }
+}
+
+/* =========================================================
+   Section — Легенда нашего спорта
+   Dark forest block: text on the left, two floating photo rows
+   (vanilla port of the cta-with-marquee layout)
+   ========================================================= */
+.legenda {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(3.5rem, 9vw, 7rem) 0;
+  /* Warm highlight from the top-left, depth to the bottom-right */
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(210, 162, 76, .20), rgba(210, 162, 76, 0) 55%),
+    radial-gradient(95% 85% at 100% 100%, rgba(44, 35, 27, .50), rgba(44, 35, 27, 0) 65%),
+    var(--forest);
+  color: var(--paper);
+  overflow: hidden;
+}
+.legenda > .container { position: relative; z-index: 1; }
+
+/* Затемнённый фотофон: стена с майками-номерами Рыженкова под тёмной вуалью */
+.legenda__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.legenda__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  background: var(--forest);
+  filter: saturate(.85);
+}
+.legenda__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(115% 80% at 12% 0%, rgba(210, 162, 76, .16), rgba(210, 162, 76, 0) 58%),
+    linear-gradient(180deg,
+      rgba(18, 26, 16, .90) 0%,
+      rgba(18, 26, 16, .86) 45%,
+      rgba(18, 26, 16, .95) 100%);
+}
+
+.legenda__grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.legenda__title {
+  margin: 0 0 clamp(1.25rem, 3vw, 1.75rem);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -.02em;
+  color: var(--paper);
+}
+.legenda__text > p {
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: rgba(245, 238, 225, .84);
+}
+.legenda__text > p + p { margin-top: 1.25rem; }
+
+/* Two photo rows float in from the right, in opposite directions */
+.legenda__gallery { min-width: 0; }
+
+/* Портрет легенды в бумажной рамке — выезжает справа ([data-reveal="right"]) */
+.legenda__photo {
+  position: relative;
+  max-width: min(100%, 30rem);
+  margin: 0 0 clamp(1.5rem, 3.5vw, 2.25rem) auto;
+  padding: .6rem .6rem .95rem;
+  background: var(--paper);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+}
+.legenda__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  background: var(--paper-2);
+}
+.legenda__photo figcaption {
+  margin-top: .65rem;
+  padding-inline: .4rem;
+  font-size: .85rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--ink-soft);
+}
+[data-reveal="right"].legenda__photo {
+  transform: translate3d(clamp(2.5rem, 6vw, 6rem), 0, 0) rotate(1.5deg);
+}
+[data-reveal="right"].legenda__photo.is-visible { transform: rotate(1.5deg); }
+[data-reveal="right"].legenda__photo.is-visible:hover { transform: rotate(0deg); }
+
+.legenda .marquee__item {
+  background: rgba(245, 238, 225, .10);
+  border: 1px solid rgba(245, 238, 225, .20);
+  box-shadow: 0 22px 45px -24px rgba(0, 0, 0, .8);
+}
+
+@media (min-width: 1080px) {
+  .legenda__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+}
+
+
+.proslavlyat {
+  position: relative;
+  /* Warm wheat glow at the top, then plain paper: the photos carry the block */
+  background-image: url('assets/img/harakter/1.jpg');  
+  
+}
+
+/* --- Scatter stage: tall scroll track + pinned viewport --- */
+.spread {
+  --spread-scroll: 350vh;
+  --spread-stack-scale: .82;
+  --spread-radius: 10px;
+  position: relative;
+  height: var(--spread-scroll);
+}
+.spread__viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Centre headline: holds still while the portraits fly past it */
+.spread__copy {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.5rem, 1vw, .9rem);
+  padding-inline: clamp(1.25rem, 6vw, 4rem);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.spread__title {
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  line-height: 1.04;
+  letter-spacing: -.02em;
+}
+.spread__sub {
+  max-width: 46ch;
+  font-size: clamp(.95rem, 1.15vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  opacity: .8;
+}
+
+/* Card field: every portrait is centred on its anchor, JS moves it from there */
+.spread__cards { position: absolute; inset: 0; z-index: 10; }
+.spread__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--spread-radius);
+  background: var(--paper-2);
+  box-shadow: 0 26px 60px -30px rgba(44, 35, 27, .55);
+  transform: translate3d(-50%, -50%, 0) scale(var(--spread-stack-scale));
+  will-change: transform;
+}
+.spread__card img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Scroll hint, visible only while the cluster is still tight */
+.spread__hint {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(1.25rem, 3.5vh, 2.5rem);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--clay);
+  pointer-events: none;
+}
+.spread__hint svg { width: 18px; height: 18px; animation: spread-hint 1.8s var(--ease) infinite; }
+@keyframes spread-hint {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* --- Article copy, revealed under the stage --- */
+.proslavlyat__body { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(3.5rem, 9vw, 7rem); }
+.proslavlyat__text { max-width: 66ch; margin-inline: auto; }
+.proslavlyat__text > p {
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.proslavlyat__text > p + p { margin-top: 1.25rem; }
+
+/* --- Static fallback: a plain gallery when motion is unwelcome --- */
+@media (prefers-reduced-motion: reduce) {
+  .spread { height: auto; padding-block: clamp(3.5rem, 9vw, 6rem) 0; }
+  .spread__viewport {
+    position: static;
+    height: auto;
+    overflow: visible;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    isolation: auto;
+  }
+  .spread__copy {
+    position: static;
+    inset: auto;
+    padding-inline: 0;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  .spread__title { max-width: none; }
+  .spread__cards {
+    position: static;
+    inset: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(.6rem, 2.5vw, 1rem);
+    margin-top: clamp(1.5rem, 5vw, 2.25rem);
+  }
+  .spread__card {
+    position: static;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    transform: none;
+    box-shadow: var(--shadow-md);
+    will-change: auto;
+  }
+  .spread__hint { display: none; }
+  .proslavlyat__body { padding-top: clamp(2.75rem, 7vw, 4rem); }
+  .proslavlyat__text { max-width: none; }
+}
+
+/* Narrow screens keep the scatter, but the centre copy grows for legibility */
+@media (max-width: 767px) {
+  .spread__title { max-width: none; font-size: clamp(1.85rem, 8vw, 3rem); }
+  .spread__sub { max-width: 34ch; font-size: clamp(.95rem, 3.6vw, 1.1rem); }
+  .spread__hint { bottom: 1.5rem; font-size: .68rem; }
+}
+
+/* =========================================================
+   Section — Девчонки выбирают биатлон
+   Dark full-bleed footage; the copy slides in from the right
+   ========================================================= */
+/* Reveal variant: enters from the right instead of from below */
+[data-reveal="right"] { opacity: 0; transform: translate3d(clamp(2.5rem, 6vw, 6rem), 0, 0); }
+[data-reveal="right"].is-visible { opacity: 1; transform: none; }
+
+.devchonki {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: center;
+  min-height: clamp(26rem, 62vh, 42rem);
+  padding-block: clamp(4rem, 11vh, 8rem);
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+}
+
+/* Lazy background footage — same pattern as the #harakter band */
+.devchonki__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.devchonki__video-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--ink);
+}
+/* Dark veil: heaviest where the copy sits, so the text stays readable */
+.devchonki__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(24, 19, 15, .92) 0%,
+      rgba(24, 19, 15, .74) 44%,
+      rgba(24, 19, 15, .40) 100%),
+    radial-gradient(120% 90% at 50% 50%, rgba(24, 19, 15, 0) 38%, rgba(24, 19, 15, .55) 100%);
+}
+.devchonki > .container { position: relative; z-index: 1; }
+
+.devchonki__text { max-width: 48ch; }
+.devchonki__lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--paper);
+}
+.devchonki__body {
+  margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: rgba(245, 238, 225, .82);
+}
+
+/* =========================================================
+   Section — Анастасия Никитенко
+   Copy on the left, polaroid frames on the right that turn
+   straight and lift on hover
+   ========================================================= */
+.nastya {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(3.5rem, 9vw, 7rem) 0;
+  /* Paper base for the block. The photo lives on the absolute layer below:
+     a `url()` written here would be resolved against assets/css/, and a
+     `cover` background on this tall section would magnify the shot far too much */
+  background: var(--paper);
+  overflow: hidden;
+}
+.nastya > .container { position: relative; z-index: 1; }
+
+/* Засвеченный фотофон: кадры стрельбища под бумажной вуалью */
+.nastya__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.nastya__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  background: var(--paper-2);
+  filter: saturate(.92);
+}
+/* Warm paper veil: the shot reads as a soft texture behind the copy and the
+   polaroids, but never competes with them; the tail dissolves into the
+   block below instead of ending on a hard edge */
+.nastya__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(105% 75% at 14% 4%, rgba(210, 162, 76, .14), rgba(210, 162, 76, 0) 62%),
+    linear-gradient(180deg,
+      rgba(245, 238, 225, .86) 0%,
+      rgba(245, 238, 225, .80) 34%,
+      rgba(245, 238, 225, .90) 70%,
+      var(--paper) 100%);
+}
+
+.nastya__grid {
+  display: grid;
+  gap: clamp(2.25rem, 5vw, 3.5rem);
+  align-items: center;
+}
+.nastya__text > p {
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.nastya__text > p + p { margin-top: 1.25rem; }
+
+/* Polaroids: paper frame with a wide bottom edge and a handwritten caption */
+.nastya__gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+.pola {
+  --rot: -3deg;
+  --rot-hover: 0deg;
+  position: relative;
+  margin: 0;
+  width: 100%;
+  max-width: 17rem;
+  justify-self: center;
+  padding: .65rem .65rem .35rem;
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 18px 38px -24px rgba(44, 35, 27, .55), 0 1px 0 rgba(44, 35, 27, .05);
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease), opacity var(--dur) var(--ease);
+  will-change: transform;
+}
+.pola:nth-child(2),
+.pola:nth-child(4) { margin-top: clamp(1rem, 3vw, 2.25rem); }
+.pola img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--paper-2);
+}
+.pola figcaption {
+  padding: .5rem .2rem .3rem;
+  font-family: var(--font-accent);
+  font-size: 1.05rem;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* [data-reveal] owns the entrance, :hover turns the frame "in the hand" */
+[data-reveal].pola { transform: translateY(28px) rotate(var(--rot)); }
+[data-reveal].pola.is-visible { transform: rotate(var(--rot)); }
+[data-reveal].pola.is-visible:hover {
+  transform: rotate(var(--rot-hover)) translateY(-10px) scale(1.04);
+  box-shadow: 0 32px 58px -26px rgba(44, 35, 27, .6);
+  z-index: 3;
+}
+
+@media (min-width: 1080px) {
+  .nastya__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal="right"] { opacity: 1; transform: none; transition: none; }
+  .pola { transition: none; }
+  [data-reveal].pola { transform: rotate(var(--rot)); }
+  [data-reveal].pola.is-visible:hover { transform: rotate(var(--rot-hover)); }
+}
+
+
+/* =========================================================
+   Section — Смотреть по корешкам
+   Full-bleed photo behind the copy, plus a hand-rolled
+   three-clip player (landscape + two portrait, custom
+   control bar, lazy loading)
+   ========================================================= */
+.koreshki {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(3.5rem, 9vw, 7rem) 0;
+  background: var(--paper);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* Photo background */
+.koreshki__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.koreshki__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  background: var(--paper-2);
+  filter: saturate(.94);
+}
+/* Warm paper veil: the photo breathes at the top, the copy and the player
+   sit on almost clean paper so neither has to fight the texture */
+.koreshki__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(245, 238, 225, .80) 0%,
+      rgba(245, 238, 225, .74) 18%,
+      rgba(245, 238, 225, .88) 46%,
+      rgba(245, 238, 225, .97) 100%),
+    radial-gradient(90% 70% at 50% 24%, rgba(245, 238, 225, .30), rgba(245, 238, 225, 0) 78%);
+}
+.koreshki__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.koreshki__head {
+  max-width: none; /* заголовок идёт во всю ширину контейнера */
+  margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
+}
+.koreshki__text { max-width: none; } /* лид и цитата — тоже */
+.koreshki__text > .koreshki__lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--ink);
+}
+.koreshki__outro {
+  max-width: 64ch;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+/* ---------------------------------------------------------
+   Кастомный плеер: тёмная сцена, свой пульт, плейлист из трёх роликов
+   (один горизонтальный + два вертикальных)
+   --------------------------------------------------------- */
+.player { margin-top: clamp(2rem, 5vw, 3rem); }
+
+.player__stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: #17130F;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+}
+.player__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #17130F;
+}
+
+/* Вертикальный клип (9:16): вместо широкого кадра сцена сжимается в портретную
+   карточку по центру — иначе узкое видео утонуло бы в чёрных полях. Ширина
+   ограничена и контейнером, и высотой окна, поэтому кадр вписывается без полей.
+   :where() здесь не украшение: он держит специфичность на уровне базового
+   правила, чтобы полноэкранный режим ниже (0-2-0) перекрывал эти размеры */
+:where(.player.is-portrait) .player__stage {
+  --portrait-h: 78vh;
+  width: min(100%, 27rem, calc(var(--portrait-h) * 9 / 16));
+  max-height: var(--portrait-h);
+  aspect-ratio: 9 / 16;
+  margin-inline: auto;
+}
+
+/* Большая кнопка поверх остановленного кадра */
+.player__big {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .9rem;
+  color: var(--paper);
+  background: linear-gradient(180deg, rgba(23, 19, 15, .22), rgba(23, 19, 15, .52));
+  transition: opacity .3s var(--ease), visibility .3s var(--ease);
+}
+.player__big-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(3.4rem, 6.5vw, 4.4rem);
+  height: clamp(3.4rem, 6.5vw, 4.4rem);
+  border: 1px solid rgba(245, 238, 225, .55);
+  border-radius: 50%;
+  background: rgba(245, 238, 225, .14);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: transform .3s var(--ease), background .3s var(--ease);
+}
+.player__big-icon svg { width: 40%; height: 40%; }
+.player__big-icon svg:first-child { margin-left: 7%; }
+.player__big-text {
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.player__big:hover .player__big-icon {
+  transform: scale(1.06);
+  background: rgba(245, 238, 225, .24);
+}
+/* Пока идёт воспроизведение, большая кнопка уходит с дороги совсем */
+.player.is-playing .player__big { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.player__bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(.35rem, 1vw, .7rem);
+  padding: clamp(.5rem, 1.5vw, .8rem) clamp(.6rem, 1.8vw, 1rem);
+  color: var(--paper);
+  background: linear-gradient(180deg,
+    rgba(23, 19, 15, 0) 0%,
+    rgba(23, 19, 15, .55) 45%,
+    rgba(23, 19, 15, .88) 100%);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+/* Во время показа пульт прячется: наведение или фокус с клавиатуры возвращают его */
+.player.is-playing .player__bar {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+.player.is-playing:hover .player__bar,
+.player.is-playing:focus-within .player__bar {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.player__btn {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(2rem, 4vw, 2.4rem);
+  height: clamp(2rem, 4vw, 2.4rem);
+  border-radius: 50%;
+  color: inherit;
+  transition: background .25s var(--ease);
+}
+.player__btn:hover { background: rgba(245, 238, 225, .18); }
+.player__btn svg {
+  width: clamp(1.05rem, 2.2vw, 1.25rem);
+  height: clamp(1.05rem, 2.2vw, 1.25rem);
+}
+
+/* В кнопках живут по две иконки — состояние плеера решает, какую показать */
+.player__icon--pause,
+.player__icon--muted,
+.player__icon--collapse { display: none; }
+.player.is-playing .player__icon--play,
+.player.is-muted .player__icon--sound,
+.player.is-fullscreen .player__icon--expand { display: none; }
+.player.is-playing .player__icon--pause,
+.player.is-muted .player__icon--muted,
+.player.is-fullscreen .player__icon--collapse { display: block; }
+
+/* Полоса перемотки: заливка прогресса через --progress */
+.player__seek {
+  --progress: 0%;
+  flex: 1 1 auto;
+  min-width: 56px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  cursor: pointer;
+}
+.player__seek::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+    var(--wheat) 0%,
+    var(--wheat) var(--progress),
+    rgba(245, 238, 225, .34) var(--progress),
+    rgba(245, 238, 225, .34) 100%);
+}
+.player__seek::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -4.5px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 1px 4px rgba(23, 19, 15, .45);
+  transition: transform .2s var(--ease);
+}
+.player__seek:hover::-webkit-slider-thumb { transform: scale(1.15); }
+.player__seek::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(245, 238, 225, .34);
+}
+.player__seek::-moz-range-progress {
+  height: 4px;
+  border-radius: 4px;
+  background: var(--wheat);
+}
+.player__seek::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+}
+.player__seek:focus-visible { outline-offset: 5px; }
+
+.player__time {
+  flex: 0 0 auto;
+  font-size: clamp(.72rem, 1.6vw, .82rem);
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 238, 225, .88);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   Плейлист: три ролика, активный отмечен глиной
+   --------------------------------------------------------- */
+.player__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.6rem, 1.6vw, 1rem);
+  margin: clamp(.9rem, 2vw, 1.2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.player__item {
+  display: flex;
+  align-items: center;
+  gap: clamp(.6rem, 1.6vw, .95rem);
+  width: 100%;
+  padding: clamp(.7rem, 1.8vw, .95rem) clamp(.8rem, 2vw, 1.1rem);
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: rgba(245, 238, 225, .74);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  transition: border-color .25s var(--ease), background .25s var(--ease),
+              box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+.player__item:hover {
+  transform: translateY(-2px);
+  background: rgba(245, 238, 225, .92);
+  box-shadow: var(--shadow-md);
+}
+.player__item.is-active {
+  border-color: rgba(180, 85, 45, .5);
+  background: rgba(245, 238, 225, .96);
+  box-shadow: inset 0 0 0 1px rgba(180, 85, 45, .32);
+}
+.player__item-no {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: rgba(44, 35, 27, .08);
+  font-family: var(--font-display);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  transition: background .25s var(--ease), color .25s var(--ease);
+}
+.player__item.is-active .player__item-no { background: var(--clay); color: var(--paper); }
+.player__item-body { min-width: 0; }
+.player__item-title {
+  display: block;
+  font-size: .98rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.player__item-note {
+  display: block;
+  font-size: .82rem;
+  line-height: 1.4;
+  color: var(--stone);
+}
+.player__item-time {
+  margin-left: auto;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--stone);
+}
+
+/* Полный экран: сцена занимает весь экран, видео вписывается целиком.
+   max-width/max-height явно снимают портретную карточку вертикальных клипов */
+.player__stage:fullscreen,
+.player__stage:-webkit-full-screen {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+@media (max-width: 899px) {
+  .player__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .player__list { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player__big,
+  .player__big-icon,
+  .player__bar,
+  .player__btn,
+  .player__item,
+  .player__item-no,
+  .player__seek::-webkit-slider-thumb { transition: none; }
+  .player__seek:hover::-webkit-slider-thumb { transform: none; }
+  .player__item:hover { transform: none; }
+}
+
+/* =========================================================
+   Section — Одна семья
+   Full-bleed photo band; the copy slides in from the right
+   and lands on the quieter half of the frame
+   ========================================================= */
+.semya {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: center;
+  min-height: clamp(28rem, 68vh, 46rem);
+  padding-block: clamp(4rem, 11vh, 8rem);
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+}
+
+.semya__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.semya__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  background: var(--ink);
+  filter: saturate(.94);
+}
+/* Dark veil: the heaviest part sits on the right, under the copy,
+   so the left half of the photo keeps breathing */
+.semya__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(270deg,
+      rgba(24, 19, 15, .93) 0%,
+      rgba(24, 19, 15, .78) 44%,
+      rgba(24, 19, 15, .34) 100%),
+    radial-gradient(120% 90% at 50% 50%, rgba(24, 19, 15, 0) 40%, rgba(24, 19, 15, .5) 100%);
+}
+.semya > .container { position: relative; z-index: 1; }
+
+/* Copy lands in the right half on wide screens, full width on narrow ones */
+.semya__text {
+  width: min(100%, 46rem);
+  margin-left: auto;
+}
+.semya__lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--paper);
+}
+.semya__quote {
+  margin-top: clamp(1.5rem, 3.5vw, 2.25rem);
+  padding-left: clamp(1.25rem, 3vw, 2rem);
+  border-left: 3px solid var(--wheat);
+}
+.semya__quote p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.55vw, 1.35rem);
+  line-height: 1.6;
+  color: rgba(245, 238, 225, .96);
+}
+.semya__sign {
+  display: block;
+  margin-top: 1.1rem;
+  font-family: var(--font-accent);
+  font-style: normal;
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.2;
+  color: var(--wheat);
+}
+
+@media (max-width: 899px) {
+  /* No room for a split veil: the whole frame goes darker */
+  .semya__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(24, 19, 15, .90) 0%,
+        rgba(24, 19, 15, .86) 55%,
+        rgba(24, 19, 15, .94) 100%);
+  }
+  .semya__text { width: 100%; }
+}
+
+/* =========================================================
+   Footer band — «Живой репортаж — материалы»
+   Dark photo band: three project cards travel around the
+   centre, then the credits. Markup and class names match the
+   previous projects (projects-footer-band / projects-section)
+   ========================================================= */
+.projects-footer-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ink);
+  color: rgba(245, 238, 225, .84);
+}
+.projects-footer-band__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.projects-footer-band__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.72);
+  transform: scale(1.04);
+}
+/* Warm dark veil: the photo still reads through, the headings stay crisp */
+.projects-footer-band__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(115% 80% at 50% 0%, rgba(180, 85, 45, .20), rgba(180, 85, 45, 0) 62%),
+    linear-gradient(180deg,
+      rgba(24, 19, 15, .86) 0%,
+      rgba(24, 19, 15, .92) 46%,
+      rgba(24, 19, 15, .96) 100%);
+}
+
+.projects-section {
+  position: relative;
+  z-index: 1;
+  padding: clamp(3.5rem, 8vw, 6rem) 0 clamp(2rem, 4vw, 3rem);
+}
+.section-header.centered {
+  margin-bottom: clamp(2rem, 4.5vw, 3rem);
+  text-align: center;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.65rem, 3.6vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: var(--paper);
+}
+
+/* Cards: the active one holds the middle, its neighbours peek out on
+   both sides and step forward on click */
+.projects-viewport { position: relative; }
+.projects-stage {
+  position: relative;
+  height: clamp(17rem, 34vw, 25rem);
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.project-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: min(30rem, 86vw);
+  overflow: hidden;
+  border: 1px solid rgba(245, 238, 225, .14);
+  border-radius: var(--r-md);
+  background: #241C15;
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  color: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(.92);
+  transition: transform .7s var(--ease), opacity .7s var(--ease),
+    border-color .3s, box-shadow .3s;
+}
+.project-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform .9s var(--ease);
+}
+.project-info {
+  padding: 1rem 1.35rem 1.15rem;
+  background: rgba(24, 19, 15, .94);
+  border-top: 1px solid rgba(245, 238, 225, .12);
+}
+.project-info h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+  line-height: 1.35;
+  color: var(--paper);
+  transition: color .3s;
+}
+.project-card.is-active {
+  z-index: 3;
+  opacity: 1;
+  pointer-events: auto;
+  border-color: rgba(210, 162, 76, .55);
+  transform: translate(-50%, -50%) scale(1);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .85);
+}
+.project-card.is-prev,
+.project-card.is-next {
+  z-index: 2;
+  opacity: .5;
+  pointer-events: auto;
+}
+.project-card.is-prev { transform: translate(calc(-50% - min(17rem, 24vw)), -50%) scale(.82); }
+.project-card.is-next { transform: translate(calc(-50% + min(17rem, 24vw)), -50%) scale(.82); }
+.project-card.is-active:hover img { transform: scale(1.04); }
+.project-card:hover .project-info h3 { color: var(--wheat); }
+
+.projects-footer {
+  margin-top: clamp(1.75rem, 4vw, 2.75rem);
+  text-align: center;
+}
+.btn-all-projects {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .95rem 2.1rem;
+  border: 1px solid rgba(245, 238, 225, .5);
+  border-radius: 999px;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--paper);
+  transition: background .25s, color .25s, border-color .25s, transform .25s;
+}
+.btn-all-projects:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* Credits live inside the dark band */
+.site-footer {
+  position: relative;
+  z-index: 1;
+  padding: 0 0 clamp(2rem, 4vw, 3rem);
+}
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+  border-top: 1px solid rgba(245, 238, 225, .16);
+}
+.site-footer__credits p {
+  font-size: .92rem;
+  color: rgba(245, 238, 225, .72);
+}
+.site-footer__credits p + p { margin-top: .35rem; }
+.site-footer__credits strong { color: var(--wheat); font-weight: 600; }
+.site-footer__link {
+  color: var(--paper);
+  border-bottom: 1px solid rgba(245, 238, 225, .3);
+  transition: color .3s, border-color .3s;
+}
+.site-footer__link:hover { color: var(--wheat); border-color: var(--wheat); }
+.site-footer__copy { font-size: .8rem; color: rgba(245, 238, 225, .48); }
+
+/* Back to top: appears after the first screen */
+.back-to-top {
+  position: fixed;
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--clay);
+  color: var(--paper);
+  box-shadow: 0 18px 40px -20px rgba(44, 35, 27, .8);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity .3s var(--ease), visibility .3s, transform .3s var(--ease), background .25s;
+}
+.back-to-top[hidden] { display: none; }
+.back-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
+.back-to-top:hover { background: var(--ink); transform: translateY(-3px); }
+.back-to-top svg { width: 22px; height: 22px; }
+
+/* Lightbox for the [data-lightbox] photos (#baza, #nastya) */
+[data-lightbox] { cursor: zoom-in; }
+body.is-locked { overflow: hidden; }
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: rgba(24, 19, 15, .95);
+  opacity: 0;
+  transition: opacity .3s;
+}
+/* [hidden] owns the closed state (display: none); opacity alone drives the
+   fade, so the close button stays focusable the moment the box opens */
+.lightbox[hidden] { display: none; }
+.lightbox:not(.is-open) { pointer-events: none; }
+.lightbox.is-open { opacity: 1; }
+.lightbox__img {
+  max-width: min(1100px, 92vw);
+  max-height: 78vh;
+  border-radius: var(--r-md);
+  object-fit: contain;
+  box-shadow: var(--shadow-lg);
+}
+.lightbox__close,
+.lightbox__nav {
+  position: absolute;
+  color: var(--paper);
+  opacity: .7;
+  transition: opacity .2s, color .2s;
+}
+.lightbox__close:hover,
+.lightbox__nav:hover { opacity: 1; color: var(--wheat); }
+.lightbox__close {
+  top: clamp(.5rem, 2vw, 1.25rem);
+  right: clamp(.75rem, 2.5vw, 1.5rem);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+.lightbox__nav {
+  top: 50%;
+  padding: .75rem 1rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1;
+  transform: translateY(-50%);
+}
+.lightbox__nav--prev { left: 0; }
+.lightbox__nav--next { right: 0; }
+.lightbox__cap {
+  position: absolute;
+  bottom: clamp(1rem, 3vw, 1.75rem);
+  left: 50%;
+  max-width: min(70ch, 88vw);
+  font-size: .9rem;
+  text-align: center;
+  color: rgba(245, 238, 225, .8);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 639px) {
+  .projects-stage { height: clamp(15.5rem, 62vw, 19rem); }
+  .project-card { width: min(100%, 88vw); }
+  .project-card.is-prev { transform: translate(calc(-50% - min(15rem, 22vw)), -50%) scale(.8); }
+  .project-card.is-next { transform: translate(calc(-50% + min(15rem, 22vw)), -50%) scale(.8); }
+  .projects-footer .btn-all-projects { width: 100%; }
+  .site-footer__inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .back-to-top { width: 44px; height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card,
+  .project-card img,
+  .btn-all-projects,
+  .back-to-top,
+  .lightbox { transition: none; }
+  .btn-all-projects:hover,
+  .back-to-top:hover { transform: none; }
+}
+
