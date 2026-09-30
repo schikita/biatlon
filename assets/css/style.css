@@ -1206,7 +1206,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--ink);
 }
 .koreshki__outro {
-  max-width: 64ch;
+  max-width: 100ch;
   margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }
 
