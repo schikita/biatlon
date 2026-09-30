@@ -813,9 +813,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   
 }
 
-/* --- Scatter stage: tall scroll track + pinned viewport --- */
+/* --- Scatter stage: scroll track + pinned viewport --- */
+/* The track is one viewport plus exactly the travel the choreography needs:
+   the cluster lands and the headline settles before the sticky lets go, so the
+   container never holds the page hostage (timeline: SCATTER_* in script.js) */
 .spread {
-  --spread-scroll: 350vh;
+  --spread-scroll: 190vh;   /* 100vh pinned viewport + 90vh of scroll travel */
   --spread-stack-scale: .82;
   --spread-radius: 10px;
   position: relative;
@@ -1147,8 +1150,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* =========================================================
    Section — Смотреть по корешкам
    Full-bleed photo behind the copy, plus a hand-rolled
-   three-clip player (landscape + two portrait, custom
-   control bar, lazy loading)
+   single-clip player (big play button, lazy loading)
    ========================================================= */
 .koreshki {
   position: relative;
@@ -1209,8 +1211,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* ---------------------------------------------------------
-   Кастомный плеер: тёмная сцена, свой пульт, плейлист из трёх роликов
-   (один горизонтальный + два вертикальных)
+   Кастомный плеер: тёмная сцена и большая кнопка запуска
    --------------------------------------------------------- */
 .player { margin-top: clamp(2rem, 5vw, 3rem); }
 
@@ -1228,19 +1229,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   height: 100%;
   object-fit: contain;
   background: #17130F;
-}
-
-/* Вертикальный клип (9:16): вместо широкого кадра сцена сжимается в портретную
-   карточку по центру — иначе узкое видео утонуло бы в чёрных полях. Ширина
-   ограничена и контейнером, и высотой окна, поэтому кадр вписывается без полей.
-   :where() здесь не украшение: он держит специфичность на уровне базового
-   правила, чтобы полноэкранный режим ниже (0-2-0) перекрывал эти размеры */
-:where(.player.is-portrait) .player__stage {
-  --portrait-h: 78vh;
-  width: min(100%, 27rem, calc(var(--portrait-h) * 9 / 16));
-  max-height: var(--portrait-h);
-  aspect-ratio: 9 / 16;
-  margin-inline: auto;
 }
 
 /* Большая кнопка поверх остановленного кадра */
@@ -1280,199 +1268,15 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   transform: scale(1.06);
   background: rgba(245, 238, 225, .24);
 }
+/* В большой кнопке живут две иконки — состояние плеера решает, какую показать */
+.player__icon--pause { display: none; }
+.player.is-playing .player__icon--play { display: none; }
+.player.is-playing .player__icon--pause { display: block; }
+
 /* Пока идёт воспроизведение, большая кнопка уходит с дороги совсем */
 .player.is-playing .player__big { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.player__bar {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: clamp(.35rem, 1vw, .7rem);
-  padding: clamp(.5rem, 1.5vw, .8rem) clamp(.6rem, 1.8vw, 1rem);
-  color: var(--paper);
-  background: linear-gradient(180deg,
-    rgba(23, 19, 15, 0) 0%,
-    rgba(23, 19, 15, .55) 45%,
-    rgba(23, 19, 15, .88) 100%);
-  transition: opacity .3s var(--ease), transform .3s var(--ease);
-}
-/* Во время показа пульт прячется: наведение или фокус с клавиатуры возвращают его */
-.player.is-playing .player__bar {
-  opacity: 0;
-  transform: translateY(8px);
-  pointer-events: none;
-}
-.player.is-playing:hover .player__bar,
-.player.is-playing:focus-within .player__bar {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-
-.player__btn {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: clamp(2rem, 4vw, 2.4rem);
-  height: clamp(2rem, 4vw, 2.4rem);
-  border-radius: 50%;
-  color: inherit;
-  transition: background .25s var(--ease);
-}
-.player__btn:hover { background: rgba(245, 238, 225, .18); }
-.player__btn svg {
-  width: clamp(1.05rem, 2.2vw, 1.25rem);
-  height: clamp(1.05rem, 2.2vw, 1.25rem);
-}
-
-/* В кнопках живут по две иконки — состояние плеера решает, какую показать */
-.player__icon--pause,
-.player__icon--muted,
-.player__icon--collapse { display: none; }
-.player.is-playing .player__icon--play,
-.player.is-muted .player__icon--sound,
-.player.is-fullscreen .player__icon--expand { display: none; }
-.player.is-playing .player__icon--pause,
-.player.is-muted .player__icon--muted,
-.player.is-fullscreen .player__icon--collapse { display: block; }
-
-/* Полоса перемотки: заливка прогресса через --progress */
-.player__seek {
-  --progress: 0%;
-  flex: 1 1 auto;
-  min-width: 56px;
-  height: 20px;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  -webkit-appearance: none;
-  background: none;
-  cursor: pointer;
-}
-.player__seek::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 4px;
-  background: linear-gradient(90deg,
-    var(--wheat) 0%,
-    var(--wheat) var(--progress),
-    rgba(245, 238, 225, .34) var(--progress),
-    rgba(245, 238, 225, .34) 100%);
-}
-.player__seek::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 13px;
-  height: 13px;
-  margin-top: -4.5px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--paper);
-  box-shadow: 0 1px 4px rgba(23, 19, 15, .45);
-  transition: transform .2s var(--ease);
-}
-.player__seek:hover::-webkit-slider-thumb { transform: scale(1.15); }
-.player__seek::-moz-range-track {
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(245, 238, 225, .34);
-}
-.player__seek::-moz-range-progress {
-  height: 4px;
-  border-radius: 4px;
-  background: var(--wheat);
-}
-.player__seek::-moz-range-thumb {
-  width: 13px;
-  height: 13px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--paper);
-}
-.player__seek:focus-visible { outline-offset: 5px; }
-
-.player__time {
-  flex: 0 0 auto;
-  font-size: clamp(.72rem, 1.6vw, .82rem);
-  font-variant-numeric: tabular-nums;
-  color: rgba(245, 238, 225, .88);
-  white-space: nowrap;
-}
-
-/* ---------------------------------------------------------
-   Плейлист: три ролика, активный отмечен глиной
-   --------------------------------------------------------- */
-.player__list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(.6rem, 1.6vw, 1rem);
-  margin: clamp(.9rem, 2vw, 1.2rem) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.player__item {
-  display: flex;
-  align-items: center;
-  gap: clamp(.6rem, 1.6vw, .95rem);
-  width: 100%;
-  padding: clamp(.7rem, 1.8vw, .95rem) clamp(.8rem, 2vw, 1.1rem);
-  text-align: left;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: rgba(245, 238, 225, .74);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  transition: border-color .25s var(--ease), background .25s var(--ease),
-              box-shadow .25s var(--ease), transform .25s var(--ease);
-}
-.player__item:hover {
-  transform: translateY(-2px);
-  background: rgba(245, 238, 225, .92);
-  box-shadow: var(--shadow-md);
-}
-.player__item.is-active {
-  border-color: rgba(180, 85, 45, .5);
-  background: rgba(245, 238, 225, .96);
-  box-shadow: inset 0 0 0 1px rgba(180, 85, 45, .32);
-}
-.player__item-no {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 1.85rem;
-  height: 1.85rem;
-  border-radius: 50%;
-  background: rgba(44, 35, 27, .08);
-  font-family: var(--font-display);
-  font-size: .82rem;
-  color: var(--ink-soft);
-  transition: background .25s var(--ease), color .25s var(--ease);
-}
-.player__item.is-active .player__item-no { background: var(--clay); color: var(--paper); }
-.player__item-body { min-width: 0; }
-.player__item-title {
-  display: block;
-  font-size: .98rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-.player__item-note {
-  display: block;
-  font-size: .82rem;
-  line-height: 1.4;
-  color: var(--stone);
-}
-.player__item-time {
-  margin-left: auto;
-  font-size: .8rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--stone);
-}
-
-/* Полный экран: сцена занимает весь экран, видео вписывается целиком.
-   max-width/max-height явно снимают портретную карточку вертикальных клипов */
+/* Полный экран: сцена занимает весь экран, видео вписывается целиком */
 .player__stage:fullscreen,
 .player__stage:-webkit-full-screen {
   width: 100%;
@@ -1483,24 +1287,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 0;
 }
 
-@media (max-width: 899px) {
-  .player__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 639px) {
-  .player__list { grid-template-columns: minmax(0, 1fr); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .player__big,
-  .player__big-icon,
-  .player__bar,
-  .player__btn,
-  .player__item,
-  .player__item-no,
-  .player__seek::-webkit-slider-thumb { transition: none; }
-  .player__seek:hover::-webkit-slider-thumb { transform: none; }
-  .player__item:hover { transform: none; }
+  .player__big-icon { transition: none; }
 }
 
 /* =========================================================

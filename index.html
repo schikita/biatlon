@@ -109,7 +109,7 @@
 
   <header class="nav" id="nav">
     <div class="container nav__inner">
-      <a class="nav__logo" href="#top">
+      <a class="nav__logo" href="https://www.sb.by">
         <img class="nav__logo-mark" src="./assets/img/logo.png" alt="Веремейки" width="42" height="42">
         <span class="nav__logo-text">
           
@@ -551,13 +551,12 @@
 
     <section class="koreshki" id="koreshki">
       <!--
-        Фотофон + кастомный плеер с тремя роликами: один горизонтальный и два
-        вертикальных. Постеры (assets/img/koreshki/poster-1…3.jpg) — кадры из
-        самих клипов, файлы — в assets/videos/. Вертикальные клипы помечены
-        data-orientation="portrait": под них сцена плеера сжимается в портретную
-        карточку по центру, иначе кадр тонул бы в чёрных полях 16:9.
-        Чтобы поставить другие ролики, поменяйте у пунктов плейлиста
-        data-src, data-poster, data-orientation и подписи.
+        Фотофон + кастомный плеер: один горизонтальный ролик с большой кнопкой
+        запуска (кнопки пульта снизу и плейлист убраны). Постер
+        (assets/img/koreshki/poster-1.jpg) — кадр из клипа, сам файл —
+        assets/videos/video_1.mp4. Источник подставляется лениво, когда секция
+        подходит к экрану; большая кнопка запускает и ставит на паузу.
+        Чтобы поставить другой ролик, поменяйте у <video> data-src и poster.
       -->
       <div class="koreshki__bg" aria-hidden="true">
         <img src="assets/img/koreshki/bg.jpg" alt="" loading="lazy" decoding="async">
@@ -595,6 +594,7 @@
                    height="576"
                    playsinline
                    preload="metadata"
+                   data-src="assets/videos/video_1.mp4"
                    poster="assets/img/koreshki/poster-1.jpg"></video>
 
             <button class="player__big" type="button" data-player-play aria-label="Включить видео">
@@ -604,73 +604,7 @@
               </span>
               <span class="player__big-text">Смотреть</span>
             </button>
-
-            <div class="player__bar">
-              <button class="player__btn" type="button" data-player-play aria-label="Воспроизвести">
-                <svg class="player__icon--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8.5 5.2v13.6L19 12z" fill="currentColor"/></svg>
-                <svg class="player__icon--pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg>
-              </button>
-
-              <input class="player__seek" type="range" min="0" max="1000" step="1" value="0"
-                     data-player-seek aria-label="Позиция видео">
-
-              <span class="player__time">
-                <span data-player-current>0:00</span> / <span data-player-duration>0:00</span>
-              </span>
-
-              <button class="player__btn" type="button" data-player-mute aria-label="Выключить звук">
-                <svg class="player__icon--sound" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9.4h3.1L11.6 6v12L7.1 14.6H4z" fill="currentColor"/><path d="M15 9.4a3.6 3.6 0 0 1 0 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M17.4 7a7 7 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                <svg class="player__icon--muted" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9.4h3.1L11.6 6v12L7.1 14.6H4z" fill="currentColor"/><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-              </button>
-
-              <button class="player__btn" type="button" data-player-full aria-label="Развернуть на весь экран">
-                <svg class="player__icon--expand" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <svg class="player__icon--collapse" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
           </div>
-
-          <ul class="player__list">
-            <li>
-              <button class="player__item is-active" type="button" data-player-item aria-current="true"
-                      data-src="assets/videos/video_1.mp4"
-                      data-poster="assets/img/koreshki/poster-1.jpg"
-                      data-orientation="landscape">
-                <span class="player__item-no">01</span>
-                <span class="player__item-body">
-                  <span class="player__item-title">Разминка колонной</span>
-                  <span class="player__item-note">Лыжероллеры выходят со двора в сосны</span>
-                </span>
-                <span class="player__item-time" data-player-item-time></span>
-              </button>
-            </li>
-            <li>
-              <button class="player__item" type="button" data-player-item
-                      data-src="assets/videos/video_2.mp4"
-                      data-poster="assets/img/koreshki/poster-2.jpg"
-                      data-orientation="portrait">
-                <span class="player__item-no">02</span>
-                <span class="player__item-body">
-                  <span class="player__item-title">Круг у школы</span>
-                  <span class="player__item-note">Девочка на ходу показывает большой палец</span>
-                </span>
-                <span class="player__item-time" data-player-item-time></span>
-              </button>
-            </li>
-            <li>
-              <button class="player__item" type="button" data-player-item
-                      data-src="assets/videos/video_3.mp4"
-                      data-poster="assets/img/koreshki/poster-3.jpg"
-                      data-orientation="portrait">
-                <span class="player__item-no">03</span>
-                <span class="player__item-body">
-                  <span class="player__item-title">Втроём на камеру</span>
-                  <span class="player__item-note">Солнечный проезд по асфальту у школы</span>
-                </span>
-                <span class="player__item-time" data-player-item-time></span>
-              </button>
-            </li>
-          </ul>
         </div>
 
         <div class="article__body koreshki__outro" data-reveal>

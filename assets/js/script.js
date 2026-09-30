@@ -310,10 +310,14 @@
     const wideQuery = window.matchMedia('(min-width: 768px)');
     const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-    // Mirrors the constants of the component
-    const SCATTER_START = 0.12;   // scroll progress where the cluster lets go
-    const SCATTER_END = 0.9;      // ...and where the last card has settled
-    const TEXT_FADE_START = 0.3;  // centre headline starts fading in
+    /* Timeline, expressed as fractions of the pinned travel (--spread-scroll,
+       see style.css). Nothing is left hanging: the portraits land by
+       SCATTER_END, the headline settles by TEXT_FADE_END, and the sticky lets
+       go right after — the container never holds the page once it is done. */
+    const SCATTER_START = 0.05;   // travel where the cluster lets go
+    const SCATTER_END = 0.45;     // ...and where the last card has settled
+    const TEXT_FADE_START = 0.55; // centre headline starts fading in
+    const TEXT_FADE_END = 0.95;   // ...and is fully in place by here
     const PARALLAX_X = 2.6;       // pointer drift once settled, vw
     const PARALLAX_Y = 2.2;       // ...and vh
     const STACK_SCALE = 0.82;     // card scale while clustered
@@ -344,6 +348,7 @@
     }));
 
     let scatter = 0;      // eased 0..1 progress of the scatter
+    let flow = 0;         // eased 0..1 scroll progress (drives the headline)
     let pointerX = 0;     // raw pointer position, -1..1 across the window
     let pointerY = 0;
     let driftX = 0;       // sprung pointer, drives the parallax
@@ -380,6 +385,12 @@
       if (Math.abs(step) < EPS) scatter = target;
       else scatter += step * SCROLL_SMOOTH;
 
+      // The headline rides the eased scroll itself, so its window can sit well
+      // after the portraits have landed (the constants above are travel fractions)
+      const flowStep = progress - flow;
+      if (Math.abs(flowStep) < EPS) flow = progress;
+      else flow += flowStep * SCROLL_SMOOTH;
+
       // Pointer parallax is armed only once the cards have landed
       if (scatter > 0.999) settled = true;
       else if (scatter < 0.985) settled = false;
@@ -406,9 +417,9 @@
           'rotate(' + rotate.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
       });
 
-      // The headline fades (and slightly grows) in while the portraits fly apart
-      const copyT = clamp01((p - TEXT_FADE_START) / 0.35);
-      const copyScale = 0.85 + 0.15 * clamp01((p - TEXT_FADE_START) / (0.9 - TEXT_FADE_START));
+      // The headline fades (and slightly grows) in once the portraits have landed
+      const copyT = clamp01((flow - TEXT_FADE_START) / (TEXT_FADE_END - TEXT_FADE_START));
+      const copyScale = 0.85 + 0.15 * copyT;
       spreadCopy.style.opacity = copyT.toFixed(3);
       spreadCopy.style.transform = 'scale(' + copyScale.toFixed(4) + ')';
       // ...and the hint is gone by the time the cluster lets go
@@ -417,6 +428,7 @@
 
       return (
         Math.abs(target - scatter) > EPS ||
+        Math.abs(progress - flow) > EPS ||
         Math.abs(aimX - driftX) > EPS ||
         Math.abs(aimY - driftY) > EPS
       );
@@ -470,73 +482,19 @@
   }
 
   /* ---------- Custom video player (#koreshki) ---------- */
-  /* Three clips in one player (one landscape, two portrait): a lazily attached
-     <video> with a hand-rolled control bar (play/pause, scrubbing, sound,
-     fullscreen) and a playlist. */
+  /* A single clip: a lazily attached <video> with just a big play button.
+     The bottom control bar and the playlist were removed on request. */
   const playerRoot = document.querySelector('[data-player]');
   if (playerRoot) {
     const video = playerRoot.querySelector('[data-player-video]');
     const stage = playerRoot.querySelector('[data-player-stage]');
-    const seek = playerRoot.querySelector('[data-player-seek]');
-    const currentLabel = playerRoot.querySelector('[data-player-current]');
-    const durationLabel = playerRoot.querySelector('[data-player-duration]');
-    const itemButtons = [...playerRoot.querySelectorAll('[data-player-item]')];
     const playButtons = [...playerRoot.querySelectorAll('[data-player-play]')];
-    const muteButton = playerRoot.querySelector('[data-player-mute]');
-    const fullButton = playerRoot.querySelector('[data-player-full]');
+    let attached = false; // true as soon as the file has been requested
 
-    const formatTime = (seconds) => {
-      if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
-      const total = Math.floor(seconds);
-      return Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
-    };
-    const setProgress = (ratio) => {
-      seek.style.setProperty('--progress', Math.max(0, Math.min(1, ratio)) * 100 + '%');
-    };
     const play = () => {
       const promise = video.play();
       if (promise && typeof promise.catch === 'function') promise.catch(() => {});
     };
-
-    let activeIndex = 0;
-    let attached = false; // true as soon as any clip has been requested
-    let scrubbing = false;
-
-    /* Портретные клипы идут в портретной сцене: сначала решаем по
-       data-orientation (чтобы не мигнул широкий кадр, пока файл грузится),
-       затем уточняем по реальным размерам файла */
-    const syncOrientation = (portrait) => playerRoot.classList.toggle('is-portrait', !!portrait);
-    const itemPortrait = (index) => {
-      const item = itemButtons[index];
-      return !!item && item.dataset.orientation === 'portrait';
-    };
-
-    /* The file itself is only requested when the playlist item is needed */
-    const select = (index, shouldPlay) => {
-      const item = itemButtons[index];
-      if (!item || !item.dataset.src) return;
-      if (attached && index === activeIndex) {
-        if (shouldPlay) play();
-        return;
-      }
-      activeIndex = index;
-      itemButtons.forEach((button, i) => {
-        button.classList.toggle('is-active', i === index);
-        if (i === index) button.setAttribute('aria-current', 'true');
-        else button.removeAttribute('aria-current');
-      });
-      if (item.dataset.poster) video.poster = item.dataset.poster;
-      syncOrientation(itemPortrait(index));
-      currentLabel.textContent = '0:00';
-      durationLabel.textContent = '0:00';
-      seek.value = '0';
-      setProgress(0);
-      video.src = item.dataset.src;
-      attached = true;
-      video.load();
-      if (shouldPlay) play();
-    };
-
     const syncPlay = () => {
       const playing = !video.paused && !video.ended;
       playerRoot.classList.toggle('is-playing', playing);
@@ -544,125 +502,44 @@
         button.setAttribute('aria-label', playing ? 'Пауза' : 'Воспроизвести');
       });
     };
-    const syncMute = () => {
-      const muted = video.muted || video.volume === 0;
-      playerRoot.classList.toggle('is-muted', muted);
-      if (muteButton) muteButton.setAttribute('aria-label', muted ? 'Включить звук' : 'Выключить звук');
-    };
-    const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
-    const syncFullscreen = () => {
-      const isFull = !!fullscreenElement();
-      playerRoot.classList.toggle('is-fullscreen', isFull);
-      if (fullButton) {
-        fullButton.setAttribute('aria-label', isFull ? 'Выйти из полноэкранного режима' : 'Развернуть на весь экран');
-      }
+    /* The file itself is only requested when the section comes close */
+    const attach = () => {
+      if (attached) return;
+      attached = true;
+      video.src = video.dataset.src;
+      video.load();
     };
     const togglePlay = () => {
-      if (!attached) { select(activeIndex, true); return; }
+      if (!attached) attach();
       if (video.paused || video.ended) play();
       else video.pause();
     };
 
-    /* ---------- Playlist ---------- */
-    itemButtons.forEach((button, i) => {
-      button.addEventListener('click', () => select(i, true));
-    });
-
-    /* ---------- Play / pause: big badge, bar button, click on the frame ---------- */
+    /* Play / pause: the big badge and a click on the frame */
     playButtons.forEach((button) => button.addEventListener('click', togglePlay));
     stage.addEventListener('click', (event) => {
-      if (event.target.closest('.player__bar, button, input')) return;
+      if (event.target.closest('button')) return;
       togglePlay();
     });
 
     /* ---------- Video state → UI ---------- */
-    video.addEventListener('loadedmetadata', () => {
-      durationLabel.textContent = formatTime(video.duration);
-      /* Файл знает о себе всё — на случай, если разметка соврала */
-      if (video.videoWidth && video.videoHeight) syncOrientation(video.videoHeight > video.videoWidth);
-      const item = itemButtons[activeIndex];
-      const chip = item && item.querySelector('[data-player-item-time]');
-      if (chip) chip.textContent = formatTime(video.duration);
-    });
-    video.addEventListener('timeupdate', () => {
-      const duration = video.duration || 0;
-      if (duration && !scrubbing) {
-        seek.value = String(Math.round((video.currentTime / duration) * 1000));
-        setProgress(video.currentTime / duration);
-      }
-      currentLabel.textContent = formatTime(video.currentTime);
-    });
     video.addEventListener('play', syncPlay);
     video.addEventListener('pause', syncPlay);
-    video.addEventListener('ended', () => {
-      syncPlay();
-      seek.value = '1000';
-      setProgress(1);
-      currentLabel.textContent = formatTime(video.duration);
-    });
-    video.addEventListener('volumechange', syncMute);
-
-    /* ---------- Scrubbing ---------- */
-    seek.addEventListener('pointerdown', () => { scrubbing = true; });
-    seek.addEventListener('input', () => {
-      scrubbing = true;
-      const duration = video.duration || 0;
-      setProgress(Number(seek.value) / 1000);
-      currentLabel.textContent = formatTime((Number(seek.value) / 1000) * duration);
-    });
-    seek.addEventListener('change', () => {
-      const duration = video.duration || 0;
-      video.currentTime = (Number(seek.value) / 1000) * duration;
-      scrubbing = false;
-    });
-    ['pointerup', 'keyup', 'blur'].forEach((type) => {
-      seek.addEventListener(type, () => { scrubbing = false; });
-    });
-
-    /* ---------- Sound ---------- */
-    if (muteButton) {
-      muteButton.addEventListener('click', () => {
-        video.muted = !video.muted;
-        syncMute();
-      });
-    }
-
-    /* ---------- Fullscreen ---------- */
-    if (fullButton) {
-      if (!stage.requestFullscreen && !stage.webkitRequestFullscreen) {
-        fullButton.hidden = true;
-      } else {
-        fullButton.addEventListener('click', () => {
-          if (fullscreenElement()) {
-            const exit = document.exitFullscreen || document.webkitExitFullscreen;
-            if (exit) {
-              const promise = exit.call(document);
-              if (promise && typeof promise.catch === 'function') promise.catch(() => {});
-            }
-          } else {
-            const enter = stage.requestFullscreen || stage.webkitRequestFullscreen;
-            const promise = enter.call(stage);
-            if (promise && typeof promise.catch === 'function') promise.catch(() => {});
-          }
-        });
-      }
-    }
-    document.addEventListener('fullscreenchange', syncFullscreen);
-    document.addEventListener('webkitfullscreenchange', syncFullscreen);
+    video.addEventListener('ended', syncPlay);
 
     /* ---------- Lazy boot: nothing is downloaded until the section shows up ---------- */
     const saveData = navigator.connection ? navigator.connection.saveData === true : false;
     if (saveData) {
-      // Data saver: the badge and the playlist are the only way to start the download
+      // Data saver: the big play button is the only way to start the download
     } else if ('IntersectionObserver' in window) {
       const bootObserver = new IntersectionObserver((entries, obs) => {
         if (!entries[0].isIntersecting) return;
         obs.disconnect();
-        select(activeIndex, false);
+        attach();
       }, { rootMargin: '300px 0px' });
       bootObserver.observe(playerRoot);
     } else {
-      select(activeIndex, false);
+      attach();
     }
 
     /* Playing footage is never left running off screen or in a hidden tab */
@@ -675,10 +552,7 @@
       if (document.hidden && !video.paused) video.pause();
     });
 
-    syncMute();
-    syncFullscreen();
-    /* Первый клип задаёт форму сцены ещё до того, как файл начнёт грузиться */
-    syncOrientation(itemPortrait(activeIndex));
+    syncPlay();
   }
 
   /* ---------- Photo lightbox (#baza, #nastya) ---------- */
