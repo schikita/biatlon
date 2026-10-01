@@ -510,6 +510,64 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* =========================================================
+   Shared — видеокарточка: постер + кнопка «Смотреть»
+   Пропорцию кадра задаёт секция через --vcard-ratio, клик ловит сама
+   <figure>: JS выдаёт ей role="button" и открывает лайтбокс по
+   [data-lightbox-video]. Controls у превью нет намеренно — вложенный
+   интерактив внутри role="button" был бы ошибкой a11y.
+   Живёт в #baza (9:16 + бумажное паспарту) и #proslavlyat (9:16).
+   ========================================================= */
+.vcard { position: relative; margin: 0; }
+.vcard__media {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--vcard-ratio, 9 / 16); /* место под кадр занято заранее */
+  object-fit: contain;
+  border-radius: 2px;
+  background: #17130F;
+}
+.vcard__badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  color: var(--paper);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(23, 19, 15, .12), rgba(23, 19, 15, .5));
+}
+.vcard__icon {
+  display: grid;
+  place-items: center;
+  width: clamp(3rem, 7vw, 4rem);
+  height: clamp(3rem, 7vw, 4rem);
+  border: 1px solid rgba(245, 238, 225, .55);
+  border-radius: 50%;
+  background: rgba(245, 238, 225, .16);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: transform .3s var(--ease), background .3s var(--ease);
+}
+.vcard__icon svg { width: 42%; height: 42%; margin-left: 6%; }
+.vcard__text {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.vcard:hover .vcard__icon {
+  transform: scale(1.06);
+  background: rgba(245, 238, 225, .26);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vcard__icon { transition: none; }
+  .vcard:hover .vcard__icon { transform: none; }
+}
+
+/* =========================================================
    Photo marquee (vanilla port of hero-3 AnimatedMarqueeHero)
    ========================================================= */
 .marquee {
@@ -654,6 +712,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* Photos: paper frames with a slight rotation; fade-in via [data-reveal] */
 .baza__photo {
   --rot: -2.5deg;
+  --vcard-ratio: 576 / 1024; /* видеокадр вертикальный (см. .vcard__media) */
   position: relative;
   margin: 0;
   padding: .55rem .55rem .9rem;
@@ -673,54 +732,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 [data-reveal].baza__photo.is-visible { transform: rotate(var(--rot)); }
 
 /* Video card: та же бумажная рамка, но вместо фото — кадр ролика и кнопка
-   «Смотреть». Controls у превью нет намеренно: клик ловит сама <figure>,
-   которой JS выдаёт role="button" (вложенный интерактив был бы ошибкой a11y) */
-.baza__video {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 576 / 1024; /* место под кадр занято заранее — без сдвига вёрстки */
-  object-fit: contain;
-  border-radius: 2px;
-  background: #17130F;
-}
-.baza__video-badge {
-  position: absolute;
-  inset: .55rem .55rem .9rem; /* ровно по площади кадра, без паспарту */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: .8rem;
-  color: var(--paper);
-  border-radius: 2px;
-  background: linear-gradient(180deg, rgba(23, 19, 15, .12), rgba(23, 19, 15, .5));
-}
-.baza__video-icon {
-  display: grid;
-  place-items: center;
-  width: clamp(3rem, 7vw, 4rem);
-  height: clamp(3rem, 7vw, 4rem);
-  border: 1px solid rgba(245, 238, 225, .55);
-  border-radius: 50%;
-  background: rgba(245, 238, 225, .16);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  transition: transform .3s var(--ease), background .3s var(--ease);
-}
-.baza__video-icon svg { width: 42%; height: 42%; margin-left: 6%; }
-.baza__video-text {
-  font-size: .72rem;
-  font-weight: 600;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-}
-.baza__photo:hover .baza__video-icon {
-  transform: scale(1.06);
-  background: rgba(245, 238, 225, .26);
-}
-/* У видеокарточки курсор — «смотреть», а не «лупа» */
-[data-lightbox][data-lightbox-video] { cursor: pointer; }
+   «Смотреть». Общие стили карточки лежат в блоке .vcard, здесь — только
+   «донастройка» под паспарту: бейдж садится ровно по площади кадра. */
+.baza__photo .vcard__badge { inset: .55rem .55rem .9rem; }
 
 @media (min-width: 1080px) {
   .baza__grid {
@@ -742,8 +756,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 @media (prefers-reduced-motion: reduce) {
   .baza__photo { transform: rotate(var(--rot)); }
-  .baza__video-icon { transition: none; }
-  .baza__photo:hover .baza__video-icon { transform: none; }
 }
 
 /* =========================================================
@@ -960,6 +972,29 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* --- Article copy, revealed under the stage --- */
 .proslavlyat__body { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(3.5rem, 9vw, 7rem); }
 .proslavlyat__text { max-width: 66ch; margin-inline: auto; }
+
+/* Видеокарточка слева, текст справа. На ≥1080px — две колонки; ниже видео
+   встаёт над текстом (оно первое в разметке, порядок чтения сохраняется).
+   Ролик снят вертикально (576×1024), поэтому кадр 9:16 и у фигуры есть
+   ограничение по ширине: растянутая на всю колонку, такая карточка была бы
+   вдвое выше текста и на узких экранах не помещалась бы в экран целиком */
+.proslavlyat__grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start; /* stretch растянул бы фигуру и бейдж разъехался бы с кадром */
+}
+.proslavlyat__video {
+  --vcard-ratio: 576 / 1024;
+  max-width: 26rem;
+  margin-inline: auto; /* в одноколоночной укладке карточка встаёт по центру */
+}
+/* Постер 946×1474 чуть шире кадра 9:16 — cover заполняет рамку без чёрных полей */
+.proslavlyat__video .vcard__media { object-fit: cover; }
+@media (min-width: 1080px) {
+  /* Колонка видео — по ширине карточки (без «воздуха» справа от неё) */
+  .proslavlyat__grid { grid-template-columns: minmax(0, 26rem) minmax(0, 1fr); }
+  .proslavlyat__video { margin-inline: 0; }
+}
 .proslavlyat__text > p {
   font-size: clamp(1rem, 1.1vw, 1.1rem);
   line-height: 1.75;
@@ -1640,6 +1675,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Lightbox for the [data-lightbox] photos (#baza, #nastya) */
 [data-lightbox] { cursor: zoom-in; }
+/* У видеокарточки курсор — «смотреть», а не «лупа» */
+[data-lightbox][data-lightbox-video] { cursor: pointer; }
 body.is-locked { overflow: hidden; }
 .lightbox {
   position: fixed;

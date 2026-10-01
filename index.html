@@ -285,7 +285,7 @@
           </div>
 
           <div class="baza__side baza__side--r">
-            <figure class="baza__photo baza__photo--r"
+            <figure class="baza__photo baza__photo--r vcard"
                     data-reveal
                     data-lightbox
                     data-lightbox-video="assets/videos/right.mp4"
@@ -293,16 +293,17 @@
                     style="--i: 1">
               <!-- Превью ролика: без src, поэтому preload="none" + poster дают
                    неподвижный кадр, а сам файл качается только при открытии лайтбокса.
-                   controls у превью нет намеренно — клик ловит сама <figure>. -->
-              <video class="baza__video"
+                   controls у превью нет намеренно — клик ловит сама <figure>.
+                   Общие стили карточки — .vcard в style.css -->
+              <video class="vcard__media"
                      poster="assets/img/baza/right-poster.jpg"
                      muted playsinline preload="none"
                      tabindex="-1" aria-hidden="true"></video>
-              <span class="baza__video-badge" aria-hidden="true">
-                <span class="baza__video-icon">
+              <span class="vcard__badge" aria-hidden="true">
+                <span class="vcard__icon">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M8.5 5.2v13.6L19 12z" fill="currentColor"/></svg>
                 </span>
-                <span class="baza__video-text">Смотреть</span>
+                <span class="vcard__text">Смотреть</span>
               </span>
             </figure>           
           </div>
@@ -446,30 +447,52 @@
       </div>
 
       <div class="container proslavlyat__body">
-        <div class="proslavlyat__text" data-reveal>
-          <p>
-            С&nbsp;приходом детей на&nbsp;спортивную базу там сразу поднялся весёлый гам. Это младшая
-            группа, в&nbsp;которой самому юному спортсмену восемь лет. Идти от&nbsp;школы пару минут,
-            поэтому кто-то обсуждает оценки, а&nbsp;ребята постарше уже сконцентрированы
-            на&nbsp;предстоящей тренировке, ведь через пару дней им&nbsp;предстояло участвовать
-            в&nbsp;открытом первенстве Могилёвской области по&nbsp;биатлону на&nbsp;призы
-            Динары Смольской.
-          </p>
-          <p>
-            Прежде чем стать на&nbsp;лыжероллеры, начинающие биатлонисты осваивают роликовые коньки.
-            На&nbsp;роликах ребёнок учится держать равновесие на&nbsp;узких колёсах. Кто знает,
-            возможно, юный спортсмен, у&nbsp;которого мы&nbsp;взяли интервью,&nbsp;– будущая мировая
-            звезда биатлона. Артур Казначеев на&nbsp;областных соревнованиях занял третье место:
-          </p>
+        <div class="proslavlyat__grid">
+          <figure class="vcard proslavlyat__video"
+                  data-reveal
+                  data-lightbox
+                  data-lightbox-video="assets/videos/video_2.mp4"
+                  data-lightbox-caption="Тренировка младшей группы отделения биатлона"
+                  style="--i: 1">
+            <!-- Превью ролика: без src, поэтому poster + preload="none" дают
+                 неподвижный кадр, а сам файл качается с открытием лайтбокса -->
+            <video class="vcard__media"
+                   poster="assets/img/koreshki/poster-1.png"
+                   muted playsinline preload="none"
+                   tabindex="-1" aria-hidden="true"></video>
+            <span class="vcard__badge" aria-hidden="true">
+              <span class="vcard__icon">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M8.5 5.2v13.6L19 12z" fill="currentColor"/></svg>
+              </span>
+              <span class="vcard__text">Смотреть</span>
+            </span>
+          </figure>
 
-          <blockquote class="quote">
+          <div class="proslavlyat__text" data-reveal>
             <p>
-              – Мой любимый спортсмен&nbsp;– Павел Пашкевич, нам про него много рассказывают, что
-              он&nbsp;был очень упрямый и&nbsp;много тренировался. А&nbsp;про Павла Белько&nbsp;– что
-              он&nbsp;учился на&nbsp;девятки. И&nbsp;наш тренер Екатерина Викторовна всегда проверяет
-              у&nbsp;нас дневники.
-            </p>          
-          </blockquote>
+              С&nbsp;приходом детей на&nbsp;спортивную базу там сразу поднялся весёлый гам. Это младшая
+              группа, в&nbsp;которой самому юному спортсмену восемь лет. Идти от&nbsp;школы пару минут,
+              поэтому кто-то обсуждает оценки, а&nbsp;ребята постарше уже сконцентрированы
+              на&nbsp;предстоящей тренировке, ведь через пару дней им&nbsp;предстояло участвовать
+              в&nbsp;открытом первенстве Могилёвской области по&nbsp;биатлону на&nbsp;призы
+              Динары Смольской.
+            </p>
+            <p>
+              Прежде чем стать на&nbsp;лыжероллеры, начинающие биатлонисты осваивают роликовые коньки.
+              На&nbsp;роликах ребёнок учится держать равновесие на&nbsp;узких колёсах. Кто знает,
+              возможно, юный спортсмен, у&nbsp;которого мы&nbsp;взяли интервью,&nbsp;– будущая мировая
+              звезда биатлона. Артур Казначеев на&nbsp;областных соревнованиях занял третье место:
+            </p>
+
+            <blockquote class="quote">
+              <p>
+                – Мой любимый спортсмен&nbsp;– Павел Пашкевич, нам про него много рассказывают, что
+                он&nbsp;был очень упрямый и&nbsp;много тренировался. А&nbsp;про Павла Белько&nbsp;– что
+                он&nbsp;учился на&nbsp;девятки. И&nbsp;наш тренер Екатерина Викторовна всегда проверяет
+                у&nbsp;нас дневники.
+              </p>          
+            </blockquote>
+          </div>
         </div>
       </div>
     </section>
@@ -510,10 +533,7 @@
     </section>
 
     <section class="nastya" id="nastya">
-      <!--
-        Засвеченный фотофон — кадр из репортажа под бумажной вуалью.
-        Чтобы поставить другой кадр, замените assets/img/nastya/bg-nastya.jpg.
-      -->
+     
       <div class="nastya__bg" aria-hidden="true">
         <img src="assets/img/nastya/bg-nastya.jpg" alt="" loading="lazy" decoding="async">
         <span class="nastya__veil"></span>
@@ -533,11 +553,7 @@
           </p>
         </div>
 
-        <!--
-          Полароиды. Кадры пока временные — кропы из репортажа. Когда будут готовы
-          фотографии Насти, замените src (например на assets/img/nastya/1.jpg … 4.jpg)
-          и подписи под кадрами.
-        -->
+      
         <div class="nastya__gallery">
           <figure class="pola" data-reveal data-lightbox style="--rot: -4.5deg">
             <img src="assets/img/nastya/1.jpg" alt="Юная биатлонистка с пневматической винтовкой на стрельбище" loading="lazy" decoding="async">
@@ -560,14 +576,7 @@
     </section>
 
     <section class="koreshki" id="koreshki">
-      <!--
-        Фотофон + кастомный плеер: один горизонтальный ролик с большой кнопкой
-        запуска (кнопки пульта снизу и плейлист убраны). Постер
-        (assets/img/koreshki/poster-1.jpg) — кадр из клипа, сам файл —
-        assets/videos/video_1.mp4. Источник подставляется лениво, когда секция
-        подходит к экрану; большая кнопка запускает и ставит на паузу.
-        Чтобы поставить другой ролик, поменяйте у <video> data-src и poster.
-      -->
+     
       <div class="koreshki__bg" aria-hidden="true">
         <img src="assets/img/koreshki/bg.jpg" alt="" loading="lazy" decoding="async">
         <span class="koreshki__veil"></span>
