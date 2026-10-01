@@ -285,16 +285,26 @@
           </div>
 
           <div class="baza__side baza__side--r">
-            <figure class="baza__photo" data-reveal data-lightbox style="--i: 1">
-              <img src="assets/img/baza/kids.jpg"
-                   alt="Тренер отделения биатлона наблюдает за стрельбой через зрительную трубу"
-                   width="900" height="600" loading="lazy" decoding="async">
-            </figure>
-            <figure class="baza__photo baza__photo--r" data-reveal data-lightbox style="--i: 2">
-              <img src="assets/img/baza/athlete.jpg"
-                   alt="Юная биатлонистка с винтовкой на стрельбище"
-                   width="600" height="900" loading="lazy" decoding="async">
-            </figure>
+            <figure class="baza__photo baza__photo--r"
+                    data-reveal
+                    data-lightbox
+                    data-lightbox-video="assets/videos/right.mp4"
+                    data-lightbox-caption="Видеоэкскурсия по базе отделения биатлона"
+                    style="--i: 1">
+              <!-- Превью ролика: без src, поэтому preload="none" + poster дают
+                   неподвижный кадр, а сам файл качается только при открытии лайтбокса.
+                   controls у превью нет намеренно — клик ловит сама <figure>. -->
+              <video class="baza__video"
+                     poster="assets/img/baza/right-poster.jpg"
+                     muted playsinline preload="none"
+                     tabindex="-1" aria-hidden="true"></video>
+              <span class="baza__video-badge" aria-hidden="true">
+                <span class="baza__video-icon">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M8.5 5.2v13.6L19 12z" fill="currentColor"/></svg>
+                </span>
+                <span class="baza__video-text">Смотреть</span>
+              </span>
+            </figure>           
           </div>
 
           <blockquote class="quote baza__quote" data-reveal>
@@ -731,11 +741,12 @@
     </svg>
   </button>
 
-  <!-- Лайтбокс для фотографий с атрибутом data-lightbox (#baza, #nastya) -->
+  <!-- Лайтбокс для фото и видео с атрибутом data-lightbox (#baza, #nastya) -->
   <div class="lightbox" id="lightbox" hidden>
     <button class="lightbox__close" type="button" data-lightbox-close aria-label="Закрыть">&times;</button>
     <button class="lightbox__nav lightbox__nav--prev" type="button" data-lightbox-prev aria-label="Предыдущее">‹</button>
     <img loading="lazy" class="lightbox__img" id="lightbox-img" alt="">
+    <video class="lightbox__video" id="lightbox-video" controls playsinline preload="none" tabindex="0" hidden></video>
     <button class="lightbox__nav lightbox__nav--next" type="button" data-lightbox-next aria-label="Следующее">›</button>
     <p class="lightbox__cap" id="lightbox-cap"></p>
   </div>

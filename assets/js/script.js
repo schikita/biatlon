@@ -555,24 +555,30 @@
     syncPlay();
   }
 
-  /* ---------- Photo lightbox (#baza, #nastya) ---------- */
+  /* ---------- Photo & video lightbox (#baza, #nastya) ---------- */
   const lightbox = document.getElementById('lightbox');
   if (lightbox) {
     const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxVideo = document.getElementById('lightbox-video');
     const lightboxCap = document.getElementById('lightbox-cap');
     const closeButton = lightbox.querySelector('[data-lightbox-close]');
     const prevButton = lightbox.querySelector('[data-lightbox-prev]');
     const nextButton = lightbox.querySelector('[data-lightbox-next]');
 
+    /* Каждый элемент галереи — либо фото (<img>), либо ролик (data-lightbox-video) */
     const items = [...document.querySelectorAll('[data-lightbox]')].map((el) => {
       const img = el.querySelector('img');
-      if (!img) return null;
+      const videoSrc = el.dataset.lightboxVideo || '';
+      if (!img && !videoSrc) return null;
       const cap = el.querySelector('figcaption');
+      const fallback = el.dataset.lightboxCaption || (img ? img.alt : '');
       return {
         el,
-        src: img.getAttribute('src'),
-        alt: img.alt,
-        caption: (cap ? cap.textContent : img.alt).trim(),
+        kind: videoSrc ? 'video' : 'image',
+        src: img ? img.getAttribute('src') : '',
+        videoSrc,
+        alt: img ? img.alt : fallback,
+        caption: (cap ? cap.textContent : fallback).trim(),
       };
     }).filter(Boolean);
 
@@ -580,31 +586,76 @@
       let current = 0;
       let lastFocused = null;
 
+      /* Ролик не должен звучать за пределами кадра: гасим и отпускаем файл.
+         Про hidden здесь проверять нельзя — render() прячет плеер раньше вызова. */
+      const stopVideo = (release) => {
+        if (!lightboxVideo) return;
+        if (!lightboxVideo.paused) lightboxVideo.pause();
+        if (release && lightboxVideo.getAttribute('src')) {
+          lightboxVideo.removeAttribute('src');
+          lightboxVideo.load();
+        }
+      };
+
+      /* Запуск идёт синхронно из обработчика клика — жест пользователя ещё жив */
+      const startVideo = () => {
+        if (!lightboxVideo || lightboxVideo.hidden) return;
+        const saveData = navigator.connection ? navigator.connection.saveData === true : false;
+        if (saveData) return; // экономия трафика: ролик стартует кнопкой самого плеера
+        const promise = lightboxVideo.play();
+        if (promise && typeof promise.catch === 'function') promise.catch(() => {});
+      };
+
       const render = () => {
-        lightboxImg.src = items[current].src;
-        lightboxImg.alt = items[current].alt;
-        lightboxCap.textContent = items[current].caption;
-        lightboxCap.hidden = !items[current].caption;
+        const item = items[current];
+        const isVideo = item.kind === 'video';
+
+        lightboxImg.hidden = isVideo;
+        lightboxVideo.hidden = !isVideo;
+
+        if (isVideo) {
+          if (lightboxImg.getAttribute('src')) lightboxImg.removeAttribute('src');
+          // Источник ставим только при смене ролика: лишний load() сбросил бы позицию
+          if (lightboxVideo.getAttribute('src') !== item.videoSrc) {
+            lightboxVideo.setAttribute('src', item.videoSrc);
+            lightboxVideo.load();
+          }
+        } else {
+          stopVideo(true);
+          lightboxImg.src = item.src;
+          lightboxImg.alt = item.alt;
+        }
+
+        lightboxCap.textContent = item.caption;
+        // У плеера своя панель внизу — подпись ей мешает
+        lightboxCap.hidden = !item.caption || isVideo;
       };
 
       const open = (index) => {
         current = (index + items.length) % items.length;
         render();
-        if (!lightbox.hidden) return; // already open — the frame just changed
+        if (!lightbox.hidden) { // already open — the frame just changed
+          startVideo();
+          return;
+        }
         lastFocused = document.activeElement;
         lightbox.hidden = false;
         document.body.classList.add('is-locked');
+        startVideo();
         // A timeout rather than requestAnimationFrame: frame callbacks can be
         // deferred for seconds in a throttled tab, and both the fade-in and the
         // focus move have to happen either way
         window.setTimeout(() => {
           lightbox.classList.add('is-open');
+          // Фокус — на крестик, а не на плеер: так ←/→ листают галерею,
+          // а перемотка включает ролик сам (клик по нему отдаёт ему фокус)
           if (closeButton) closeButton.focus();
         }, 30);
       };
 
       const close = () => {
         if (lightbox.hidden) return;
+        stopVideo(true); // звук не остаётся после закрытия
         lightbox.classList.remove('is-open');
         document.body.classList.remove('is-locked');
         window.setTimeout(() => {
@@ -614,11 +665,12 @@
         }, reduceMotion ? 0 : 300);
       };
 
-      // A <figure> is not focusable on its own — turn every photo into a control
+      // A <figure> is not focusable on its own — turn every card into a control
       items.forEach((item, index) => {
+        const action = item.kind === 'video' ? 'Открыть видео' : 'Открыть фото';
         item.el.setAttribute('role', 'button');
         item.el.setAttribute('tabindex', '0');
-        item.el.setAttribute('aria-label', 'Открыть фото' + (item.alt ? ': ' + item.alt : ''));
+        item.el.setAttribute('aria-label', action + (item.alt ? ': ' + item.alt : ''));
         item.el.addEventListener('click', () => open(index));
         item.el.addEventListener('keydown', (e) => {
           if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -635,7 +687,9 @@
 
       document.addEventListener('keydown', (e) => {
         if (lightbox.hidden) return;
-        if (e.key === 'Escape') close();
+        if (e.key === 'Escape') { close(); return; }
+        // Фокус в плеере: ←/→ перематывают ролик, а не листают галерею
+        if (document.activeElement === lightboxVideo) return;
         if (e.key === 'ArrowLeft') open(current - 1);
         if (e.key === 'ArrowRight') open(current + 1);
       });

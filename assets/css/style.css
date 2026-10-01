@@ -654,6 +654,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* Photos: paper frames with a slight rotation; fade-in via [data-reveal] */
 .baza__photo {
   --rot: -2.5deg;
+  position: relative;
   margin: 0;
   padding: .55rem .55rem .9rem;
   background: var(--paper);
@@ -670,6 +671,56 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background: var(--paper-2);
 }
 [data-reveal].baza__photo.is-visible { transform: rotate(var(--rot)); }
+
+/* Video card: та же бумажная рамка, но вместо фото — кадр ролика и кнопка
+   «Смотреть». Controls у превью нет намеренно: клик ловит сама <figure>,
+   которой JS выдаёт role="button" (вложенный интерактив был бы ошибкой a11y) */
+.baza__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 576 / 1024; /* место под кадр занято заранее — без сдвига вёрстки */
+  object-fit: contain;
+  border-radius: 2px;
+  background: #17130F;
+}
+.baza__video-badge {
+  position: absolute;
+  inset: .55rem .55rem .9rem; /* ровно по площади кадра, без паспарту */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  color: var(--paper);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(23, 19, 15, .12), rgba(23, 19, 15, .5));
+}
+.baza__video-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(3rem, 7vw, 4rem);
+  height: clamp(3rem, 7vw, 4rem);
+  border: 1px solid rgba(245, 238, 225, .55);
+  border-radius: 50%;
+  background: rgba(245, 238, 225, .16);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: transform .3s var(--ease), background .3s var(--ease);
+}
+.baza__video-icon svg { width: 42%; height: 42%; margin-left: 6%; }
+.baza__video-text {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.baza__photo:hover .baza__video-icon {
+  transform: scale(1.06);
+  background: rgba(245, 238, 225, .26);
+}
+/* У видеокарточки курсор — «смотреть», а не «лупа» */
+[data-lightbox][data-lightbox-video] { cursor: pointer; }
 
 @media (min-width: 1080px) {
   .baza__grid {
@@ -691,6 +742,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 @media (prefers-reduced-motion: reduce) {
   .baza__photo { transform: rotate(var(--rot)); }
+  .baza__video-icon { transition: none; }
+  .baza__photo:hover .baza__video-icon { transform: none; }
 }
 
 /* =========================================================
@@ -1612,6 +1665,15 @@ body.is-locked { overflow: hidden; }
   object-fit: contain;
   box-shadow: var(--shadow-lg);
 }
+/* Ролик в лайтбоксе: вертикальный кадр 9:16 упирается в высоту, как и фото */
+.lightbox__video {
+  max-width: min(1100px, 92vw);
+  max-height: 78vh;
+  border-radius: var(--r-md);
+  background: #17130F;
+  box-shadow: var(--shadow-lg);
+}
+.lightbox__video[hidden] { display: none; }
 .lightbox__close,
 .lightbox__nav {
   position: absolute;
